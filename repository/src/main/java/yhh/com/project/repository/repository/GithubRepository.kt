@@ -92,7 +92,6 @@ class GithubRepository @Inject constructor(private val database: AppDatabase) {
                                     val pageEntity = PageEntity(page + 1, sinceResult)
                                     database.pageEntityDao().insert(pageEntity)
                                     Timber.v("pageEntity: $pageEntity")
-
                                 } else {
                                     Timber.v("Cannot find page entity")
                                 }
