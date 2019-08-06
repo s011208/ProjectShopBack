@@ -119,6 +119,9 @@ class GithubRepository @Inject constructor(private val database: AppDatabase) {
         ).filter { it.isNotEmpty() }.firstOrError()
     }
 
+    /**
+     * return -1 if cannot find page result
+     */
     fun getSince(page: Long): Single<Long> {
         return database.pageEntityDao()
             .getSince(page)
