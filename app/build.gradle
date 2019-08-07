@@ -28,6 +28,10 @@ android {
     }
 }
 
+androidExtensions {
+    experimental = true
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -83,6 +87,10 @@ dependencies {
 
     // card view
     implementation 'androidx.cardview:cardview:1.0.0'
+
+    // navigation component
+    implementation "androidx.navigation:navigation-fragment-ktx:2.1.0-beta02"
+    implementation "androidx.navigation:navigation-ui-ktx:2.1.0-beta02"
 
     implementation project(path: ':repository')
 }

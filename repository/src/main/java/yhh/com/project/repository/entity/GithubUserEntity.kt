@@ -1,11 +1,14 @@
 package yhh.com.project.repository.entity
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
 @Entity
+@Parcelize
 data class GithubUserEntity(
     @field:[PrimaryKey SerializedName("id") ColumnInfo(name = "_id")]
     val userId: Long = -1,
@@ -14,7 +17,7 @@ data class GithubUserEntity(
     val login: String = "",
 
     @field:[SerializedName("name") ColumnInfo(name = "name")]
-    var name: String = "",
+    var name: String? = "",
 
     @field:[SerializedName("avatar_url") ColumnInfo(name = "avatar_url")]
     val avatarUrl: String = "",
@@ -23,17 +26,17 @@ data class GithubUserEntity(
     val isSiteAdmin: Boolean = false,
 
     @field:[SerializedName("bio") ColumnInfo(name = "bio")]
-    var bio: String = "",
+    var bio: String? = "",
 
     @field:[SerializedName("location") ColumnInfo(name = "location")]
-    var location: String = "",
+    var location: String? = "",
 
     @field:[SerializedName("blog") ColumnInfo(name = "blog")]
-    var blog: String = "",
+    var blog: String? = "",
 
     @field:[ColumnInfo(name = "since")]
     var since: Long = 0,
 
     @field:[ColumnInfo(name = "has_load_detail")]
     var hasLoadDetail: Boolean = false
-)
+): Parcelable
