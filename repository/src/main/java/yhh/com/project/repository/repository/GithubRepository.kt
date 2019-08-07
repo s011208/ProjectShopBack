@@ -66,9 +66,9 @@ class GithubRepository @Inject constructor(private val database: AppDatabase) {
     private fun getUsersInternal(page: Long, since: Long, itemPerPage: Int): Single<List<GithubUserEntity>> {
         return Single.concat(
             database.githubUserDao().getAllUsers(since)
-                .doOnSuccess { Timber.v("getAllUsers from local, size: ${it.size}") },
+                .doOnSuccess { Timber.v("getAllUsers from local, size: ${it.size}, page: $page, since: $since") },
             githubApi.getAllUsers(since, itemPerPage)
-                .timeout(10, TimeUnit.SECONDS)
+                .doOnSuccess { Timber.v("done") }
                 .map {
                     val header = it.headers()
                     val responseBody = it.body()
@@ -99,8 +99,21 @@ class GithubRepository @Inject constructor(private val database: AppDatabase) {
                         }
                     }
 
-                    return@map responseBody!!
-                }.onErrorReturnItem(ArrayList())
+                    if (responseBody != null) {
+                        responseBody.forEach { entity ->
+                            entity.since = since
+                        }
+                        database.githubUserDao().insertAll(responseBody)
+                        return@map responseBody!!
+                    } else {
+                        return@map ArrayList<GithubUserEntity>()
+                    }
+                }
+                .doOnSuccess { Timber.v("getAllUsers from remote, size: ${it.size}, page: $page, since: $since") }
+                .onErrorReturn {
+                    Timber.w(it, "failed to getAllUsers from remote")
+                    return@onErrorReturn ArrayList()
+                }
         ).filter { it.isNotEmpty() }.firstOrError()
     }
 
@@ -123,12 +136,16 @@ class GithubRepository @Inject constructor(private val database: AppDatabase) {
      * return -1 if cannot find page result
      */
     fun getSince(page: Long): Single<Long> {
-        return database.pageEntityDao()
-            .getSince(page)
-            .map { it[0].since }
-            .onErrorReturn {
-                Timber.w(it, "failed to get since by page: $page")
-                return@onErrorReturn -1
-            }
+        return if (page == 0L) {
+            Single.just(0)
+        } else {
+            database.pageEntityDao()
+                .getSince(page)
+                .map { it[0].since }
+                .onErrorReturn {
+                    Timber.w(it, "failed to get since by page: $page")
+                    return@onErrorReturn -1
+                }
+        }
     }
 }

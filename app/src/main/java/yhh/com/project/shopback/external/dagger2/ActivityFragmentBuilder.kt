@@ -2,10 +2,14 @@ package yhh.com.project.shopback.external.dagger2
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import yhh.com.project.shopback.activity.MainActivity
+import yhh.com.project.shopback.activity.main.MainActivity
+import yhh.com.project.shopback.fragment.allusers.AllUsersFragment
 
 @Module
 abstract class ActivityFragmentBuilder {
     @ContributesAndroidInjector
     abstract fun bindMainActivity(): MainActivity
+
+    @ContributesAndroidInjector
+    abstract fun bindAllUsersFragment(): AllUsersFragment
 }
