@@ -5,8 +5,8 @@ import com.airbnb.mvrx.*
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.parcel.Parcelize
-import timber.log.Timber
 import yhh.com.project.repository.entity.GithubUserEntity
 import yhh.com.project.repository.repository.GithubRepository
 import yhh.com.project.shopback.external.mvrx.MvRxViewModel
@@ -44,8 +44,15 @@ class SingleUserFragmentViewModel @AssistedInject constructor(
 
     private var disposable: Disposable? = null
 
-    init {
-        Timber.e("login: ${initialState.login}")
+    fun reload() {
+        disposable?.dispose()
+        withState {
+            disposable = githubRepository.getUser(it.login)
+                .subscribeOn(Schedulers.io())
+                .execute { state ->
+                    copy(userAsync = state)
+                }
+        }
     }
 
     override fun onCleared() {

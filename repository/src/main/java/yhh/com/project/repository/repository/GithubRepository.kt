@@ -117,19 +117,27 @@ class GithubRepository @Inject constructor(private val database: AppDatabase) {
         ).filter { it.isNotEmpty() }.firstOrError()
     }
 
-    fun getUser(entity: GithubUserEntity): Single<List<GithubUserEntity>> {
+    fun getUser(login: String): Single<GithubUserEntity> {
         return Single.concat(
-            database.githubUserDao().getUser(entity.login)
-                .doOnSuccess { Timber.v("getUser from locale, size: ${it.size}") },
-            githubApi.getSingleUser(entity.login)
+            database.githubUserDao().getUser(login)
+                .doOnSuccess { Timber.v("getUser from local, size: ${it.size}, item: ${it[0]}") },
+            githubApi.getSingleUser(login)
                 .timeout(10, TimeUnit.SECONDS)
                 .doOnSuccess {
-                    Timber.v("getUser from remote, result: $it")
-                    it.since = entity.since
+                    Timber.v("getUser from remote, result: $it, login: $login")
                     it.hasLoadDetail = true
-                    database.githubUserDao().update(it)
+                    database.githubUserDao().updateDetail(
+                        name = it.name ?: "",
+                        bio = it.bio ?: "",
+                        location = it.location ?: "",
+                        blog = it.blog ?: "",
+                        login = login
+                    )
                 }.map { ArrayList<GithubUserEntity>().apply { add(it) } }
-        ).filter { it.isNotEmpty() }.firstOrError()
+        )
+            .filter { it.isNotEmpty() && it[0].hasLoadDetail }
+            .map { it[0] }
+            .firstOrError()
     }
 
     /**
