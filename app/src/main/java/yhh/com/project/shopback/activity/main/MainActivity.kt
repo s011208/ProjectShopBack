@@ -8,7 +8,6 @@ import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import yhh.com.project.shopback.R
-import yhh.com.project.shopback.fragment.allusers.AllUsersFragment
 import javax.inject.Inject
 
 class MainActivity : BaseMvRxActivity(), HasSupportFragmentInjector {
@@ -22,11 +21,5 @@ class MainActivity : BaseMvRxActivity(), HasSupportFragmentInjector {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, AllUsersFragment())
-                .commitAllowingStateLoss()
-        }
     }
 }

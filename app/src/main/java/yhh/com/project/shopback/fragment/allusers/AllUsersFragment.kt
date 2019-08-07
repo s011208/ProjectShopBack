@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.mvrx.*
 import com.jakewharton.rxbinding3.view.clicks
@@ -16,6 +17,7 @@ import timber.log.Timber
 import yhh.com.project.shopback.R
 import yhh.com.project.shopback.fragment.allusers.epoxy.controller.AllUsersEpoxyController
 import yhh.com.project.shopback.fragment.allusers.mvrx.viewmodel.AllUsersFragmentViewModel
+import yhh.com.project.shopback.fragment.singleuser.mvrx.viewmodel.SingleUserFragmentStateArgs
 import javax.inject.Inject
 
 class AllUsersFragment : BaseMvRxFragment() {
@@ -34,7 +36,7 @@ class AllUsersFragment : BaseMvRxFragment() {
         epoxyController.onRestoreInstanceState(savedInstanceState)
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
@@ -48,8 +50,8 @@ class AllUsersFragment : BaseMvRxFragment() {
 
         compositeDisposable += previous.clicks().subscribe { viewModel.loadPreviousPage() }
         compositeDisposable += next.clicks().subscribe { viewModel.loadNextPage() }
-        compositeDisposable += epoxyController.clickLoginIntent.subscribe {
-            Timber.v("login: $it")
+        compositeDisposable += epoxyController.clickLoginIntent.subscribe { login ->
+            findNavController().navigate(R.id.singleUserFragment, Bundle().apply { putParcelable(MvRx.KEY_ARG, SingleUserFragmentStateArgs(login = login))})
         }
         compositeDisposable += epoxyController.clickReloadIntent.subscribe { viewModel.reload() }
 
@@ -64,8 +66,12 @@ class AllUsersFragment : BaseMvRxFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        compositeDisposable.dispose()
         epoxyController.cancelPendingModelBuild()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
     }
 
     override fun invalidate() {
